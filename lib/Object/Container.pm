@@ -193,6 +193,10 @@ This is utility method that load $class if $class is not loaded.
 
 It's useful when you want include dependency in initializer and want lazy load the modules.
 
+=head1 SEE ALSO
+
+L<Class::Singleton>, L<Object::Registrar>.
+
 =head1 AUTHOR
 
 Daisuke Murase <typester@cpan.org>
