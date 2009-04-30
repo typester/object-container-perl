@@ -58,7 +58,7 @@ __END__
 
 =head1 NAME
 
-Object::Container - 
+Object::Container - simple object container
 
 =head1 SYNOPSIS
 
@@ -89,11 +89,63 @@ Object::Container -
 
 =head1 DESCRIPTION
 
-Stub documentation for this module was created by ExtUtils::ModuleMaker.
-It looks like the author of the extension was negligent enough
-to leave the stub unedited.
+This module is a object container interface which supports both OO interface and Singleton interface.
 
-Blah blah blah.
+If you want to use one module from several places, you might use L<Class::Singleton> to access the module from any places. But you should subclass each modules to singletonize.
+
+This module provide singleton container instead of module itself, so it is easy to singleton multiple classes.
+
+L<Object::Registrar> is a similar module to this. But Object::Container has also OO interface and supports lazy initializer. (describing below)
+
+=head2 OO and Singleton interfaces
+
+This module provide two interfaces: OO and Singleton.
+
+OO interface is like this:
+
+    my $container = Object::Container->new;
+
+It is normal object oriented interface. And you can use multiple container at the same Time:
+
+    my $container1 = Object::Container->new;
+    my $container2 = Object::Container->new;
+
+Singleton is also like this:
+
+    my $container = Object::Container->instance;
+
+instance method always returns singleton object. With this interface, you can 'register' and 'get' method as class method:
+
+    Object::Container->register('WWW::Mechanize');
+    my $mech = Object::Container->get('WWW::Mechanize');
+
+When you want use multiple container with Singleton interface, you have to create subclass like this:
+
+    MyContainer1->get('WWW::Mechanize');
+    MyContainer2->get('WWW::Mechanize');
+
+=head2 lazy loading and resolve dependencies
+
+The object that is registered by 'register' method is not initialized until calling 'get' method.
+
+    Object::Container->register('WWW::Mechanize', sub { WWW::Mechanize->new }); # doesn't initialize here
+    my $mech = Object::Container->get('WWW::Mechanize'); # initialize here
+
+This feature helps you to create less resource and fast runtime script in case of lots of object registered.
+
+And you can resolve dependencies between multiple modules with Singleton interface.
+
+For example:
+
+    Object::Container->register('HTTP::Cookies', sub { HTTP::Cookies->new( file => '/path/to/cookie.dat' ) });
+    Object::Container->register('LWP::UserAgent', sub {
+        my $cookies = Object::Container->get('HTTP::Cookies');
+        LWP::UserAgent->new( cookie_jar => $cookies );
+    });
+
+You can resolve dependencies by calling 'get' method in initializer like above.
+
+In that case, only LWP::UserAgent and HTTP::Cookies are initialized.
 
 =head1 METHODS
 
@@ -101,9 +153,45 @@ Blah blah blah.
 
 =head2 register( $class_or_name, $initialize_code )
 
+Register classes to container.
+
+Most simple usage is:
+
+    Object::Container->register('WWW::Mechanize');
+
+First argument is class name to object. In this case, execute 'WWW::Mechanize->new' when first get method call.
+
+    Object::Container->register('WWW::Mechanize', @args );
+
+is also execute 'WWW::Mechanize->new(@args)'.
+
+If you use different constructor from 'new', want to custom initializer, or want to include dependencies, you can custom initializer to pass a coderef as second argument.
+
+    Object::Container->register('WWW::Mechanize', sub {
+        my $mech = WWW::Mechanize->new( stack_depth );
+        $mech->agent_alias('Windows IE 6');
+        return $mech;
+    });
+
+This coderef (initialize) should return object to contain.
+
+With last way you can pass any name to first argument instead of class name.
+
+    Object::Container->register('ua1', sub { LWP::UserAgent->new });
+    Object::Container->register('ua2', sub { LWP::UserAgent->new });
+
+
 =head2 get($class_or_name)
 
+Get the object that registered by 'register' method.
+
+First argument is same as 'register' method.
+
 =head2 ensure_class_loaded($class)
+
+This is utility method that load $class if $class is not loaded.
+
+It's useful when you want include dependency in initializer and want lazy load the modules.
 
 =head1 AUTHOR
 

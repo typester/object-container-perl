@@ -1,0 +1,174 @@
+=encoding utf-8
+
+=head1 NAME
+
+Object::Container - シンプルなオブジェクトコンテナインタフェース
+
+=head1 SYNOPSIS
+
+    use Object::Container;
+
+    ## OO インタフェース
+    # 初期化
+    my $container = Object::Container->new;
+    
+    # クラスを登録
+    $container->register('HTML::TreeBuilder');
+    
+    # クラスをイニシャライザ指定して登録
+    $container->register('WWW::Mechanize', sub {
+        my $mech = WWW::Mechanize->new( stack_depth => 1 );
+        $mech->agent_alias('Windows IE 6');
+        return $mech;
+    });
+    
+    # 登録したオブジェクトを得る
+    my $mech = $container->get('WWW::Mechanize');
+    
+    ## Singletonインタフェース
+    my $container = Object::Container->instance;
+    
+    # Singletonインタフェースの場合はregister/getはクラスメソッドとして動作する
+    Object::Container->register('WWW::Mechanize');
+    my $mech = Object::Container->get('WWW::Mechanize');
+
+=head1 DESCRIPTION
+
+Object::Container は Singleton インタフェース、OO インタフェースどちらでもつかえるシンプルなオブジェクトコンテナーを提供するモジュールです。
+
+アプリケーション中で同一のオブジェクトをいろいろな場所で使用したい場合があるかもしれません。
+そのような場合に、L<Class::Singleton> などを使用してどこからでもそのオブジェクトを取り出せるように設計することがありますが、この方法だと使用したいクラスをサブクラス化して使用する必要があります。
+
+このモジュールではオブジェクトを複数格納できるコンテナーを提供し、コンテナー自身を Singleton にすることで複数のオブジェクトを簡単にどこからでもアクセスできるようにすることができます。
+
+設計思想は L<Object::Registrar> というモジュールに似ていますが、OOインターフェースを持つ点、登録されたオブジェクトの初期化を実際に必要になるまで行わない (遅延実行）点が異なっています。
+
+=head2 OOインターフェースとSingletonインターフェース
+
+このモジュールは OO インターフェースと Singleton インタフェースの二種類のインターフェースを持ちます。
+
+OOインターフェスは
+
+    my $container = Object::Container->new;
+
+などのようにコンストラクタを呼び、その返り値のオブジェクトを介してオブジェクトの登録や取得を行います。この場合登録したオブジェクトはコンテナーオブジェクトごとに独立しています。
+
+例えば
+
+    my $container1 = Object::Container->new;
+    my $container2 = Object::Container->new;
+
+などのように複数のコンテナーを使い分けるような使い方ができます。
+
+Singletonインタフェースは
+
+    my $container = Object::Container->instance;
+
+というように明示的にコンストラクタをよばす、クラスに割り当てられた唯一のオブジェクトを使用するインターフェースです。
+
+Singletonインタフェースを使用する場合は、register や get 関数などは
+
+    Object::Container->register('WWW::Mechanize', sub { WWW::Mechanize->new( stack_depth => 1 ) });
+
+というようにすべてクラスメソッドとして使用することができます。Singletonインターフェースで複数のコンテナーを使いたい場合はサブクラス化をして
+
+    MyContainer1->get('WWW::Mechanize');
+    MyContainer2->get('WWW::Mechanize');
+
+のようにします。
+
+=head2 遅延ロードと依存性解決
+
+registerメソッドで登録されたオブジェクトは、初回の get メソッドを実行したときに初めて初期化されます。
+
+    Object::Container->register('WWW::Mechanize', sub { WWW::Mechanize->new }); # ここで WWW::Mechanize->new は実行されない
+    my $mech = Object::Container->get('WWW::Mechanize'); # ここで実行される
+
+この機能により大量にクラスが登録されていても、必要な物のみ初期化されるためリソースを大量に消費することがないため永続プロセス以外でも手軽に導入できるでしょう。
+
+また Singleton インタフェースは初期化関数と組み合わせることにより、オブジェクト同士の依存性の解決も行うことができます。
+
+たとえば、L<HTTP::Cookies> オブジェクトに依存した L<LWP::UserAgent> を考えます。このような場合、
+
+    Object::Container->register('HTTP::Cookies', sub { HTTP::Cookies->new( file => '/path/to/cookie.dat' ) });
+    Object::Container->register('LWP::UserAgent', sub {
+        my $cookies = Object::Container->get('HTTP::Cookies');
+        LWP::UserAgent->new( cookie_jar => $cookies );
+    });
+
+というように初期化関数のなかで get メソッドをしようすることで依存性の解決が行えます。
+
+上記の場合、
+
+    my $ua = Object::Container->get('LWP::UserAgent');
+
+した場合に LWP::UserAgent と HTTP::Cookies の両方が初期化されます。
+
+=head1 METHODS
+
+=head2 register( $class, @args )
+
+=head2 register( $class_or_name, $initialize_code )
+
+Object::Container にオブジェクトを登録します。
+
+いちばんシンプルな使い方は
+
+    Object::Container->register('WWW::Mechanize');
+
+などのようにクラス名のみを登録する方法です。この場合 get した場合に WWW::Mechanize->new が引数なしで呼ばれます。
+
+new の引数を指定したい場合は
+
+    Object::Container->register('WWW::Mechanize', @constructor_args);
+
+などのように第二引数以降に配列をわたせばそれがそのまま new にわたされます。
+
+new 以外のコンストラクタが必要な場合、他に初期化処理が必要な場合、依存しているモジュールがある場合などは、第二引数にコードリファレンスを渡すことで任意の初期化処理が行えます。
+
+    Object::Container->register('WWW::Mechanize', sub {
+        my $mech = WWW::Mechanize->new( stack_depth );
+        $mech->agent_alias('Windows IE 6');
+        return $mech;
+    });
+
+このコードリファレンスではコンテナに格納するオブジェクトを返す必要があります。
+
+またこのように初期化関数を渡す場合、第一引数ではクラス名を与える必要はなく任意の名前を与えることができます。
+
+    Object::Container->register('ua1', sub { LWP::UserAgent->new });
+    Object::Container->register('ua2', sub { LWP::UserAgent->new });
+
+などと言った使い方も可能です。
+
+=head2 get($class_or_name)
+
+registerメソッドで登録したオブジェクトを取得します。
+
+与える引数はregisterメソッドに与えた第一引数と同じ物を渡します。
+
+=head2 ensure_class_loaded($class)
+
+$class がロードされているか確認し、ロードされていなかった場合そのクラスを use してくれるユーティリティ関数です。
+
+初期化関数に依存性を含ませるような場合でその依存モジュールを遅延ロードしたい場合などに使用すると便利です。
+
+=head1 SEE ALSO
+
+L<Class::Singleton>, L<Object::Registrar>.
+
+=head1 AUTHOR
+
+Daisuke Murase <typester@cpan.org>
+
+=head1 COPYRIGHT & LICENSE
+
+Copyright (c) 2009 by KAYAC Inc.
+
+This program is free software; you can redistribute
+it and/or modify it under the same terms as Perl itself.
+
+The full text of the license can be found in the
+LICENSE file included with this module.
+
+=cut
