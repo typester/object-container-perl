@@ -1,7 +1,7 @@
 package Object::Container;
 use Any::Moose;
 
-our $VERSION = '0.01';
+our $VERSION = '0.01001';
 
 extends any_moose('::Object'), 'Class::Singleton';
 

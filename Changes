@@ -1,4 +1,7 @@
 Revision history for Perl extension Object::Container
 
+0.01001 2009-05-01T10:27:33+09:00
+     - fix japanese pod name section to avoid CPAN indexer
+
 0.01 2009-04-30T16:52:37+09:00
      - initial version
