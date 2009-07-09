@@ -2,7 +2,7 @@
 
 =head1 名前
 
-Object::Container - シンプルなオブジェクトコンテナインタフェース
+Object::Container::ja - シンプルなオブジェクトコンテナインタフェース
 
 =head1 SYNOPSIS
 
@@ -31,6 +31,10 @@ Object::Container - シンプルなオブジェクトコンテナインタフェ
     # Singletonインタフェースの場合はregister/getはクラスメソッドとして動作する
     Object::Container->register('WWW::Mechanize');
     my $mech = Object::Container->get('WWW::Mechanize');
+
+    # Singletonインタフェースはget関数を任意の名前でエクスポートできる
+    use Object::Container 'container';
+    my $mech = container('WWW::Mechanize');
 
 =head1 DESCRIPTION
 
