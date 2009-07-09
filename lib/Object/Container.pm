@@ -1,7 +1,7 @@
 package Object::Container;
 use Any::Moose;
 
-our $VERSION = '0.02';
+our $VERSION = '0.02001';
 
 extends any_moose('::Object'), 'Class::Singleton';
 
@@ -28,7 +28,7 @@ sub import {
         no strict 'refs';
         *{"${caller}::${name}"} = sub {
             my ($target) = @_;
-            $class->get($target);
+            return $target ? $class->get($target) : $class;
         };
     }
 }
@@ -100,10 +100,12 @@ Object::Container - simple object container
     # With singleton interface, you can use register/get method as class method
     Object::Container->register('WWW::Mechanize');
     my $mech = Object::Container->get('WWW::Mechanize');
-
+    
     # Export singleton interface
     use Object::Container 'container';
-    my $mech = container('WWW::Mechanize');
+    container->register('WWW::Mechanize');
+    my $mech = container->get('WWW::Mechanize');
+    my $mech = container('WWW::Mechanize'); # save as above
 
 =head1 DESCRIPTION
 

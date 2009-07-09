@@ -10,9 +10,11 @@ use Object::Container 'obj';
     sub hello { 'hello' }
 }
 
-Object::Container->register( foo => sub { Foo->new } );
+obj->register( foo => sub { Foo->new } );
 
 isa_ok( obj('foo'), 'Foo' );
+isa_ok( obj->get('foo'), 'Foo' );
 is( obj('foo')->hello, 'hello', 'hello method ok');
+is( obj->get('foo')->hello, 'hello', 'hello method ok');
 
 

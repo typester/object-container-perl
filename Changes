@@ -1,5 +1,8 @@
 Revision history for Perl extension Object::Container
 
+0.02001 2009-07-09T19:07:45+09:00
+     - enable to get Object::Container via export function when it comes to no arguments.
+
 0.02 2009-07-09T18:41:54+09:00
      - added feature to export singleton interface
 

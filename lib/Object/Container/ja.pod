@@ -31,10 +31,12 @@ Object::Container::ja - シンプルなオブジェクトコンテナインタ�
     # Singletonインタフェースの場合はregister/getはクラスメソッドとして動作する
     Object::Container->register('WWW::Mechanize');
     my $mech = Object::Container->get('WWW::Mechanize');
-
+    
     # Singletonインタフェースはget関数を任意の名前でエクスポートできる
     use Object::Container 'container';
-    my $mech = container('WWW::Mechanize');
+    container->register('WWW::Mechanize');
+    my $mech = container->get('WWW::Mechanize');
+    my $mech = container('WWW::Mechanize'); # save as above
 
 =head1 DESCRIPTION
 
