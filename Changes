@@ -1,5 +1,8 @@
 Revision history for Perl extension Object::Container
 
+0.02 2009-07-09T18:41:54+09:00
+     - added feature to export singleton interface
+
 0.01001 2009-05-01T10:27:33+09:00
      - fix japanese pod name section to avoid CPAN indexer
 
