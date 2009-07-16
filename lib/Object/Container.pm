@@ -2,7 +2,7 @@ package Object::Container;
 use Any::Moose;
 use Exporter::AutoClean;
 
-our $VERSION = '0.02001';
+our $VERSION = '0.03';
 
 extends any_moose('::Object'), 'Class::Singleton';
 

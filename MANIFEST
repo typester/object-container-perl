@@ -27,5 +27,7 @@ t/01_object.t
 t/02_singleton.t
 t/03_args_and_initializer.t
 t/04_export.t
+t/05_subclass.t
 t/pod.t
 t/pod_coverage.t
+t/subclass/Foo.pm
