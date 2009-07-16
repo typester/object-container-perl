@@ -1,5 +1,6 @@
 package Object::Container;
 use Any::Moose;
+use Exporter::AutoClean;
 
 our $VERSION = '0.02001';
 
@@ -26,10 +27,21 @@ sub import {
     my $caller = caller;
     {
         no strict 'refs';
-        *{"${caller}::${name}"} = sub {
-            my ($target) = @_;
-            return $target ? $class->get($target) : $class;
-        };
+        if ($name =~ /^-base$/i) {
+            push @{"${caller}::ISA"}, $class;
+            my $r = $class->can('register');
+            Exporter::AutoClean->export(
+                $caller,
+                register => sub { $r->($caller, @_) },
+            );
+        }
+        else {
+            no strict 'refs';
+            *{"${caller}::${name}"} = sub {
+                my ($target) = @_;
+                return $target ? $class->get($target) : $class;
+            };
+        }
     }
 }
 
