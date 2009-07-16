@@ -1,6 +1,6 @@
 =encoding utf-8
 
-=head1 名前
+=head1 NAME
 
 Object::Container::ja - シンプルなオブジェクトコンテナインタフェース
 
@@ -37,6 +37,12 @@ Object::Container::ja - シンプルなオブジェクトコンテナインタ�
     container->register('WWW::Mechanize');
     my $mech = container->get('WWW::Mechanize');
     my $mech = container('WWW::Mechanize'); # save as above
+    
+    # Singletonインタフェースのサブクラス化
+    package MyObj;
+    use Object::Container '-base';
+    
+    register 'ua' => sub { LWP::UserAgent->new };
 
 =head1 DESCRIPTION
 
@@ -82,6 +88,47 @@ Singletonインタフェースを使用する場合は、register や get 関数
     MyContainer2->get('WWW::Mechanize');
 
 のようにします。
+
+=head2 SingletonインタフェースとEXPORT関数
+
+Singletonインタフェースで、いちいち
+
+    MyContainer->get('WWW::Mechanize');
+
+と書くのがだるい、と言う人のために好きな名前でコンテナをEXPORTできる機能を用意してあります。
+
+    use MyContainer 'obj';
+
+と、use 時にエクスポートしたい関数名を指定します。すると
+
+    obj->register( mech => sub { WWW::Mechanize->new });
+
+    obj->get('mech');
+    obj('mech');      # shortcut to obj->get('mech')
+
+などと短い書き方でコンテナーにアクセスできるようになります。
+
+=head2 Singletonインタフェースとサブクラス化
+
+Singletonインタフェースのサブクラス内でオブジェクトを登録したいときに
+
+    __PACKAGE__->register( mech => sub { WWW::Mechanize->new } );
+
+と書くのがだるい、と言う人のためにサブクラス化時のインタフェースも用意してあります。
+
+サブクラス化するときに、
+
+    use base 'Object::Container';
+
+とするかわりに
+
+    use Object::Container '-base';
+
+とすると register と言う関数がエクスポートされます。こうすると上記の C<__PACKAGE__->register> のかわりに
+
+    register mech => sub { WWW::Mechanize->new };
+
+と書くことができるようになります。
 
 =head2 遅延ロードと依存性解決
 

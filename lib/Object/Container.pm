@@ -118,6 +118,17 @@ Object::Container - simple object container
     container->register('WWW::Mechanize');
     my $mech = container->get('WWW::Mechanize');
     my $mech = container('WWW::Mechanize'); # save as above
+    
+    # Subclassing singleton interface
+    package MyContainer;
+    use Object::Container '-base';
+    
+    register mech => sub { WWW::Mechanize->new };
+    
+    # use it
+    use MyContainer 'con';
+    
+    con('mech')->get('http://example.com');
 
 =head1 DESCRIPTION
 
@@ -155,6 +166,37 @@ When you want use multiple container with Singleton interface, you have to creat
 
     MyContainer1->get('WWW::Mechanize');
     MyContainer2->get('WWW::Mechanize');
+
+=head2 Singleton interface with EXPORT function for lazy people
+
+If you are lazy person, and don't want to write something long code like:
+
+    MyContainer->get('WWW::Mechanize');
+
+This module provide export functions to shorten this.
+If you use your container with function name, the function will be exported and act as container:
+
+    use MyContainer 'container';
+    
+    container->register(...);
+    
+    container->get(...);
+    container(...);             # shortcut to ->get(...);
+
+=head2 Subclassing singleton interface for lazy people
+
+If you are lazy person, and don't want to write something long code in your subclass like:
+
+    __PACKAGE__->register( ... );
+
+Instead of above, this module provide subclassing interface.
+To do this, you need to write below code to subclass instead of C<use base>.
+
+    use Object::Container '-base';
+
+And then you can register your object via DSL functions:
+
+    register ua => sub { LWP::UserAgent->new };
 
 =head2 lazy loading and resolve dependencies
 
