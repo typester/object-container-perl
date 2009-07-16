@@ -2,7 +2,7 @@ package Object::Container;
 use Any::Moose;
 use Exporter::AutoClean;
 
-our $VERSION = '0.03';
+our $VERSION = '0.03001';
 
 extends any_moose('::Object'), 'Class::Singleton';
 
@@ -69,7 +69,8 @@ sub register {
 sub get {
     my ($self, $class) = @_;
     $self = $self->instance unless ref $self;
-    my $obj = $self->objects->{ $class } ||= $self->registered_classes->{$class}->()
+    my $obj = $self->objects->{ $class }
+        ||= $self->registered_classes->{$class}->($self)
         or die qq["$class" is not registered in @{[ ref $self ]}];
 }
 
