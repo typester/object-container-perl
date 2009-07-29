@@ -69,9 +69,10 @@ sub register {
 sub get {
     my ($self, $class) = @_;
     $self = $self->instance unless ref $self;
-    my $obj = $self->objects->{ $class }
-        ||= $self->registered_classes->{$class}->($self)
-        or die qq["$class" is not registered in @{[ ref $self ]}];
+    my $obj = $self->objects->{ $class } ||= do {
+        my $initializer = $self->registered_classes->{ $class };
+        $initializer ? $initializer->($self) : ();
+    } or die qq["$class" is not registered in @{[ ref $self ]}];
 }
 
 sub ensure_class_loaded {
