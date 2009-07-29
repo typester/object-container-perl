@@ -1,5 +1,8 @@
 Revision history for Perl extension Object::Container
 
+0.03002 2009-07-29T12:23:30+09:00
+     - fixed a bug throwing wrong error message when getting unregistered classes
+
 0.03001 2009-07-16T19:54:28+09:00
      - pass $self to initializer
 

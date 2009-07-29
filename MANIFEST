@@ -14,6 +14,7 @@ inc/Test/Base.pm
 inc/Test/Base/Filter.pm
 inc/Test/Builder.pm
 inc/Test/Builder/Module.pm
+inc/Test/Exception.pm
 inc/Test/More.pm
 lib/Object/Container.pm
 lib/Object/Container/ja.pod

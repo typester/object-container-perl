@@ -7,6 +7,8 @@ requires 'Class::Singleton';
 requires 'Exporter::AutoClean';
 
 test_requires 'Test::More';
+test_requires 'Test::Exception';
+
 use_test_base;
 auto_include;
 WriteAll;
