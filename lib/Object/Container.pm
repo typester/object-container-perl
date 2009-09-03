@@ -1,8 +1,10 @@
 package Object::Container;
 use Any::Moose;
+
+use Carp;
 use Exporter::AutoClean;
 
-our $VERSION = '0.03002';
+our $VERSION = '0.04';
 
 extends any_moose('::Object'), 'Class::Singleton';
 
@@ -72,7 +74,14 @@ sub get {
     my $obj = $self->objects->{ $class } ||= do {
         my $initializer = $self->registered_classes->{ $class };
         $initializer ? $initializer->($self) : ();
-    } or die qq["$class" is not registered in @{[ ref $self ]}];
+    };
+
+    unless ($obj) {
+        carp qq["$class" is not registered in @{[ ref $self ]}];
+        return;
+    }
+
+    $obj;
 }
 
 sub ensure_class_loaded {
@@ -83,6 +92,8 @@ sub ensure_class_loaded {
 __PACKAGE__->meta->make_immutable;
 
 __END__
+
+=for stopwords DSL OO runtime singletonize
 
 =head1 NAME
 

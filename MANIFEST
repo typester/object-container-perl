@@ -1,11 +1,13 @@
 Changes
 inc/Module/Install.pm
+inc/Module/Install/AuthorTests.pm
 inc/Module/Install/Base.pm
 inc/Module/Install/Can.pm
 inc/Module/Install/Fetch.pm
 inc/Module/Install/Include.pm
 inc/Module/Install/Makefile.pm
 inc/Module/Install/Metadata.pm
+inc/Module/Install/Repository.pm
 inc/Module/Install/TestBase.pm
 inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
@@ -14,7 +16,6 @@ inc/Test/Base.pm
 inc/Test/Base/Filter.pm
 inc/Test/Builder.pm
 inc/Test/Builder/Module.pm
-inc/Test/Exception.pm
 inc/Test/More.pm
 lib/Object/Container.pm
 lib/Object/Container/ja.pod
@@ -29,6 +30,7 @@ t/02_singleton.t
 t/03_args_and_initializer.t
 t/04_export.t
 t/05_subclass.t
-t/pod.t
-t/pod_coverage.t
 t/subclass/Foo.pm
+xt/pod.t
+xt/pod_coverage.t
+xt/pod_spell.t

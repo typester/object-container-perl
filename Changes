@@ -1,5 +1,9 @@
 Revision history for Perl extension Object::Container
 
+0.04 2009-09-03T21:34:25+09:00
+     - use Carp
+     - return nothing if it comes getting unregistered object
+
 0.03002 2009-07-29T12:23:30+09:00
      - fixed a bug throwing wrong error message when getting unregistered classes
 

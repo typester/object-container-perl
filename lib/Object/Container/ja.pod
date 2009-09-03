@@ -1,5 +1,7 @@
 =encoding utf-8
 
+=for stopwords OO
+
 =head1 NAME
 
 Object::Container::ja - シンプルなオブジェクトコンテナインタフェース
