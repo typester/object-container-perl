@@ -1,5 +1,8 @@
 Revision history for Perl extension Object::Container
 
+0.05 2009-09-04T11:39:11+09:00
+     - fix 0.04 doesn't die when getting unregister objects
+
 0.04 2009-09-03T21:34:25+09:00
      - use Carp
      - return nothing if it comes getting unregistered object
