@@ -126,7 +126,7 @@ Singletonインタフェースのサブクラス内でオブジェクトを登�
 
     use Object::Container '-base';
 
-とすると register と言う関数がエクスポートされます。こうすると上記の C<__PACKAGE__->register> のかわりに
+とすると register と言う関数がエクスポートされます。こうすると上記の C<< __PACKAGE__->register >> のかわりに
 
     register mech => sub { WWW::Mechanize->new };
 
