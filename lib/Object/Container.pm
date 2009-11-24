@@ -4,7 +4,7 @@ use Any::Moose;
 use Carp;
 use Exporter::AutoClean;
 
-our $VERSION = '0.05';
+our $VERSION = '0.05001';
 
 extends any_moose('::Object'), 'Class::Singleton';
 

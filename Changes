@@ -1,5 +1,8 @@
 Revision history for Perl extension Object::Container
 
+0.05001 2009-11-24T10:43:02+09:00
+     - fix pod (RT: #51859)
+
 0.05 2009-09-04T11:39:11+09:00
      - fix 0.04 doesn't die when getting unregister objects
 
