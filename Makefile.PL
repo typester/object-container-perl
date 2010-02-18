@@ -6,7 +6,7 @@ requires 'Any::Moose' => '0.10';
 requires 'Class::Singleton';
 requires 'Exporter::AutoClean';
 
-test_requires 'Test::More';
+test_requires 'Test::More' => '0.88';
 use_test_base;
 author_tests 'xt';
 
