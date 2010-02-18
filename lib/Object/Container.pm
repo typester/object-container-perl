@@ -4,7 +4,7 @@ use Any::Moose;
 use Carp;
 use Exporter::AutoClean;
 
-our $VERSION = '0.04';
+our $VERSION = '0.05001';
 
 extends any_moose('::Object'), 'Class::Singleton';
 
@@ -82,14 +82,7 @@ sub get {
     my $obj = $self->objects->{ $class } ||= do {
         my $initializer = $self->registered_classes->{ $class };
         $initializer ? $initializer->($self) : ();
-    };
-
-    unless ($obj) {
-        carp qq["$class" is not registered in @{[ ref $self ]}];
-        return;
-    }
-
-    $obj;
+    } or croak qq["$class" is not registered in @{[ ref $self ]}];
 }
 
 sub remove {
