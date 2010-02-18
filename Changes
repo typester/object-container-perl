@@ -1,5 +1,8 @@
 Revision history for Perl extension Object::Container
 
+0.06 2010-02-18T20:52:58+09:00
+     - add unregister and remove method
+
 0.05001 2009-11-24T10:43:02+09:00
      - fix pod (RT: #51859)
 
