@@ -4,7 +4,7 @@ use Any::Moose;
 use Carp;
 use Exporter::AutoClean;
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 extends any_moose('::Object'), 'Class::Singleton';
 
@@ -65,7 +65,6 @@ sub register {
         };
     }
 
-    $self->unregister($class);
     $self->registered_classes->{$class} = $initializer;
 }
 

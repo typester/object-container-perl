@@ -1,5 +1,8 @@
 Revision history for Perl extension Object::Container
 
+0.07 2010-04-04T22:26:03+09:00
+     - don't unregister previously registered class automatically when newer register is called
+
 0.06 2010-02-18T20:52:58+09:00
      - add unregister and remove method
 
