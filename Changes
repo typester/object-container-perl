@@ -1,5 +1,8 @@
 Revision history for Perl extension Object::Container
 
+0.08 2010-04-08T12:33:50+09:00
+     - no depends Mo(o|u)se, change to depends on Class::Accessor::Fast.
+
 0.07 2010-04-04T22:26:03+09:00
      - don't unregister previously registered class automatically when newer register is called
 

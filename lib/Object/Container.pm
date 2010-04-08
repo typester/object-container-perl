@@ -1,26 +1,17 @@
 package Object::Container;
-use Any::Moose;
+
+use strict;
+use warnings;
+use parent qw(Class::Accessor::Fast Class::Singleton);
 
 use Carp;
+use Data::Util qw(is_invocant);
 use Exporter::AutoClean;
+use Module::Load;
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
-extends any_moose('::Object'), 'Class::Singleton';
-
-has registered_classes => (
-    is      => 'rw',
-    isa     => 'HashRef',
-    default => sub { {} },
-);
-
-has objects => (
-    is      => 'rw',
-    isa     => 'HashRef',
-    default => sub { {} },
-);
-
-no Any::Moose;
+__PACKAGE__->mk_accessors(qw/registered_classes objects/);
 
 sub import {
     my ($class, $name) = @_;
@@ -47,8 +38,17 @@ sub import {
     }
 }
 
+sub new {
+    $_[0]->SUPER::new( +{
+        registered_classes => +{},
+        objects => +{},
+    } );
+}
+
 # override Class::Singleton initializer
-sub _new_instance { shift->new(@_) }
+sub _new_instance {
+    $_[0]->new;
+}
 
 sub register {
     my ($self, $class, @rest) = @_;
@@ -92,11 +92,10 @@ sub remove {
 
 sub ensure_class_loaded {
     my ($self, $class) = @_;
-    Any::Moose::load_class($class) unless Any::Moose::is_class_loaded($class);
+    load($class) unless (is_invocant($class));
 }
 
-__PACKAGE__->meta->make_immutable;
-
+1;
 __END__
 
 =for stopwords DSL OO runtime singletonize unregister

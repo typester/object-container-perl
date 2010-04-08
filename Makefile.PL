@@ -2,9 +2,12 @@ use inc::Module::Install;
 name 'Object-Container';
 all_from 'lib/Object/Container.pm';
 
-requires 'Any::Moose' => '0.10';
+requires 'Carp';
+requires 'Class::Accessor::Fast';
 requires 'Class::Singleton';
+requires 'Data::Util';
 requires 'Exporter::AutoClean';
+requires 'Module::Load';
 
 test_requires 'Test::More' => '0.88';
 use_test_base;
