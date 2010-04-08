@@ -241,6 +241,10 @@ In that case, only LWP::UserAgent and HTTP::Cookies are initialized.
 
 =head1 METHODS
 
+=head2 new
+
+Do not use it. use instance method.
+
 =head2 register( $class, @args )
 
 =head2 register( $class_or_name, $initialize_code )
