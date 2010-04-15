@@ -7,7 +7,6 @@ requires 'Class::Accessor::Fast';
 requires 'Class::Singleton';
 requires 'Data::Util';
 requires 'Exporter::AutoClean';
-requires 'Module::Load';
 
 test_requires 'Test::More' => '0.88';
 use_test_base;

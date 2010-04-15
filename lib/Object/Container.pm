@@ -7,7 +7,6 @@ use parent qw(Class::Accessor::Fast Class::Singleton);
 use Carp;
 use Data::Util qw(is_invocant);
 use Exporter::AutoClean;
-use Module::Load;
 
 our $VERSION = '0.08';
 
@@ -90,9 +89,28 @@ sub remove {
     delete $self->objects->{ $class };
 }
 
+# taken from Mouse::Uti
+sub _try_load_one_class {
+    my $class = shift;
+
+    return '' if is_invocant($class);
+
+    $class  =~ s{::}{/}g;
+    $class .= '.pm';
+
+    return do {
+        local $@;
+        eval { require $class };
+        $@;
+    };
+}
+
 sub ensure_class_loaded {
     my ($self, $class) = @_;
-    load($class) unless (is_invocant($class));
+    my $e = _try_load_one_class($class);
+    Carp::confess "Could not load class ($class) because : $e" if $e;
+
+    return $class;
 }
 
 1;
