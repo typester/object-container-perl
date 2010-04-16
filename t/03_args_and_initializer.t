@@ -6,12 +6,16 @@ use Object::Container;
 
 {
     package SampleClass;
-    use Any::Moose;
+    use base 'Class::Accessor::Fast';
 
-    has text => (
-        is  => 'rw',
-        isa => 'Str',
-    );
+    __PACKAGE__->mk_accessors(qw/text/);
+
+    sub new {
+        my $class = shift;
+        my $args  = @_ > 1 ? {@_} : $_;
+
+        $class->SUPER::new($args);
+    }
 }
 
 my $c = Object::Container->new;

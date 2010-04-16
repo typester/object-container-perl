@@ -1,5 +1,8 @@
 Revision history for Perl extension Object::Container
 
+0.0801 2010-04-16T23:53:08+09:00
+     - fixed previous version bug that forgot to remove Any::Moose from testcase
+
 0.08 2010-04-15T13:39:23+09:00
      - no depends Mo(o|u)se, change to depends on Class::Accessor::Fast. (zigorou++)
 

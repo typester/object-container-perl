@@ -8,7 +8,7 @@ use Carp;
 use Data::Util qw(is_invocant);
 use Exporter::AutoClean;
 
-our $VERSION = '0.08';
+our $VERSION = '0.0801';
 
 __PACKAGE__->mk_accessors(qw/registered_classes objects/);
 
