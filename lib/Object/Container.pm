@@ -5,7 +5,7 @@ use warnings;
 use parent qw(Class::Accessor::Fast Class::Singleton);
 
 use Carp;
-use Data::Util qw(is_invocant);
+use Data::Util qw(is_invocant is_hash_ref is_value is_code_ref);
 use Exporter::AutoClean;
 
 our $VERSION = '0.0802';
@@ -50,21 +50,45 @@ sub _new_instance {
 }
 
 sub register {
-    my ($self, $class, @rest) = @_;
+    my ($self, $args, @rest) = @_;
     $self = $self->instance unless ref $self;
 
-    my $initializer;
-    if (@rest == 1 and ref($rest[0]) eq 'CODE') {
-        $initializer = $rest[0];
+    my ($class, $initializer, $is_preload);
+    if (is_value $args) {
+        $class = $args;
+        if (@rest == 1 and is_code_ref $rest[0]) {
+            $initializer = $rest[0];
+        }
+        else {
+            $initializer = sub {
+                $self->ensure_class_loaded($class);
+                $class->new(@rest);
+            };
+        }
+    }
+    elsif (is_hash_ref $args) {
+        $class = $args->{class};
+        $args->{args} ||= [];
+        if (is_code_ref $args->{initializer}) {
+            $initializer = $args->{initializer};
+        }
+        else {
+            $initializer = sub {
+                $self->ensure_class_loaded($class);
+                $class->new(@{$args->{args}});
+            };
+        }
+
+        $is_preload = 1 if $args->{preload};
     }
     else {
-        $initializer = sub {
-            $self->ensure_class_loaded($class);
-            $class->new(@rest);
-        };
+        croak "Usage: $self->register($class || { class => $class ... })";
     }
 
     $self->registered_classes->{$class} = $initializer;
+    $self->get($class) if $is_preload;
+    
+    return $initializer;
 }
 
 sub unregister {
