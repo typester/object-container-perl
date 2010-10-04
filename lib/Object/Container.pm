@@ -25,7 +25,17 @@ sub import {
             Exporter::AutoClean->export(
                 $caller,
                 register => sub { $r->($caller, @_) },
+                preload  => sub {
+                    $caller->instance->get($_) for @_;
+                },
+                preload_all_except => sub {
+                    $caller->instance->load_all_except(@_);
+                },
+                preload_all => sub {
+                    $caller->instance->load_all;
+                },
             );
+
         }
         else {
             no strict 'refs';
@@ -87,6 +97,20 @@ sub remove {
     my ($self, $class) = @_;
     $self = $self->instance unless ref $self;
     delete $self->objects->{ $class };
+}
+
+sub load_all {
+    my ($self) = @_;
+    $self->load_all_except;
+}
+
+sub load_all_except {
+    my ($self, @except) = @_;
+
+    for my $class (keys %{ $self->registered_classes }) {
+        next if grep { $class eq $_ } @except;
+        $self->get($class);
+    }
 }
 
 # taken from Mouse::Uti
