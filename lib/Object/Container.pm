@@ -73,9 +73,6 @@ sub register {
     }
 
     $self->registered_classes->{$class} = $initializer;
-
-#use Data::Dumper;
-#warn Dumper($self);
 }
 
 sub unregister {
