@@ -2,13 +2,10 @@ package Object::Container;
 
 use strict;
 use warnings;
-use parent qw(Class::Accessor::Fast Class::Singleton);
-
+use parent qw(Class::Accessor::Fast);
 use Carp;
-use Data::Util qw(is_invocant is_hash_ref is_value is_code_ref);
-use Exporter::AutoClean;
 
-our $VERSION = '0.0802';
+our $VERSION = '0.09_01';
 
 __PACKAGE__->mk_accessors(qw/registered_classes objects/);
 
@@ -22,9 +19,19 @@ sub import {
         if ($name =~ /^-base$/i) {
             push @{"${caller}::ISA"}, $class;
             my $r = $class->can('register');
+            require Exporter::AutoClean;
             Exporter::AutoClean->export(
                 $caller,
                 register => sub { $r->($caller, @_) },
+                preload  => sub {
+                    $caller->instance->get($_) for @_;
+                },
+                preload_all_except => sub {
+                    $caller->instance->load_all_except(@_);
+                },
+                preload_all => sub {
+                    $caller->instance->load_all;
+                },
             );
         }
         else {
@@ -37,6 +44,12 @@ sub import {
     }
 }
 
+my %INSTANCES;
+sub instance {
+    my $class = shift;
+    return $INSTANCES{$class} ||= $class->new;
+}
+
 sub new {
     $_[0]->SUPER::new( +{
         registered_classes => +{},
@@ -44,19 +57,14 @@ sub new {
     } );
 }
 
-# override Class::Singleton initializer
-sub _new_instance {
-    $_[0]->new;
-}
-
 sub register {
     my ($self, $args, @rest) = @_;
     $self = $self->instance unless ref $self;
 
     my ($class, $initializer, $is_preload);
-    if (is_value $args) {
+    if (defined $args && !ref $args) {
         $class = $args;
-        if (@rest == 1 and is_code_ref $rest[0]) {
+        if (@rest == 1 and ref $rest[0] eq 'CODE') {
             $initializer = $rest[0];
         }
         else {
@@ -66,10 +74,10 @@ sub register {
             };
         }
     }
-    elsif (is_hash_ref $args) {
+    elsif (ref $args eq 'HASH') {
         $class = $args->{class};
         $args->{args} ||= [];
-        if (is_code_ref $args->{initializer}) {
+        if (ref $args->{initializer} eq 'CODE') {
             $initializer = $args->{initializer};
         }
         else {
@@ -113,18 +121,34 @@ sub remove {
     delete $self->objects->{ $class };
 }
 
+sub load_all {
+    my ($self) = @_;
+    $self->load_all_except;
+}
+
+sub load_all_except {
+    my ($self, @except) = @_;
+
+    for my $class (keys %{ $self->registered_classes }) {
+        next if grep { $class eq $_ } @except;
+        $self->get($class);
+    }
+}
+
 # taken from Mouse::Uti
 sub _try_load_one_class {
     my $class = shift;
 
-    return '' if is_invocant($class);
+    return '' if ref $class; # not necessarily blessed, but good enough
+    my $klass = $class;
+    $klass  =~ s{::}{/}g;
+    $klass .= '.pm';
 
-    $class  =~ s{::}{/}g;
-    $class .= '.pm';
+    return '' if $INC{$klass} || exists $::{"$class\::"};
 
     return do {
         local $@;
-        eval { require $class };
+        eval { require $klass };
         $@;
     };
 }

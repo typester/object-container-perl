@@ -31,6 +31,8 @@ t/03_args_and_initializer.t
 t/04_export.t
 t/05_subclass.t
 t/06_remove.t
+t/07_preload.t
+t/08_preload_subclass.t
 t/subclass/Foo.pm
 xt/pod.t
 xt/pod_coverage.t
