@@ -4,7 +4,6 @@ use strict;
 use warnings;
 use parent qw(Class::Accessor::Fast);
 use Carp;
-use Exporter::AutoClean;
 
 our $VERSION = '0.09_01';
 
@@ -20,6 +19,7 @@ sub import {
         if ($name =~ /^-base$/i) {
             push @{"${caller}::ISA"}, $class;
             my $r = $class->can('register');
+            require Exporter::AutoClean;
             Exporter::AutoClean->export(
                 $caller,
                 register => sub { $r->($caller, @_) },
