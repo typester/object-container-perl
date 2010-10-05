@@ -111,16 +111,51 @@ sub load_all_except {
     }
 }
 
-# taken from Mouse::Uti
+# taken from Mouse
+sub _is_class_loaded {
+    my $class = shift;
+
+    return 0 if ref($class) || !defined($class) || !length($class);
+
+    # walk the symbol table tree to avoid autovififying
+    # \*{${main::}{"Foo::"}{"Bar::"}} == \*main::Foo::Bar::
+
+    my $pack = \%::;
+    foreach my $part (split('::', $class)) {
+        $part .= '::';
+        return 0 if !exists $pack->{$part};
+
+        my $entry = \$pack->{$part};
+        return 0 if ref($entry) ne 'GLOB';
+        $pack = *{$entry}{HASH};
+    }
+
+    return 0 if !%{$pack};
+
+    # check for $VERSION or @ISA
+    return 1 if exists $pack->{VERSION}
+             && defined *{$pack->{VERSION}}{SCALAR} && defined ${ $pack->{VERSION} };
+    return 1 if exists $pack->{ISA}
+             && defined *{$pack->{ISA}}{ARRAY} && @{ $pack->{ISA} } != 0;
+
+    # check for any method
+    foreach my $name( keys %{$pack} ) {
+        my $entry = \$pack->{$name};
+        return 1 if ref($entry) ne 'GLOB' || defined *{$entry}{CODE};
+    }
+
+    # fail
+    return 0;
+}
+
+
 sub _try_load_one_class {
     my $class = shift;
 
-    return '' if ref $class; # not necessarily blessed, but good enough
+    return '' if _is_class_loaded($class);
     my $klass = $class;
     $klass  =~ s{::}{/}g;
     $klass .= '.pm';
-
-    return '' if $INC{$klass} || exists $::{"$class\::"};
 
     return do {
         local $@;
