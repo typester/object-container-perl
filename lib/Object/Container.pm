@@ -58,21 +58,45 @@ sub new {
 }
 
 sub register {
-    my ($self, $class, @rest) = @_;
+    my ($self, $args, @rest) = @_;
     $self = $self->instance unless ref $self;
 
-    my $initializer;
-    if (@rest == 1 and ref($rest[0]) eq 'CODE') {
-        $initializer = $rest[0];
+    my ($class, $initializer, $is_preload);
+    if (defined $args && !ref $args) {
+        $class = $args;
+        if (@rest == 1 and ref $rest[0] eq 'CODE') {
+            $initializer = $rest[0];
+        }
+        else {
+            $initializer = sub {
+                $self->ensure_class_loaded($class);
+                $class->new(@rest);
+            };
+        }
+    }
+    elsif (ref $args eq 'HASH') {
+        $class = $args->{class};
+        $args->{args} ||= [];
+        if (ref $args->{initializer} eq 'CODE') {
+            $initializer = $args->{initializer};
+        }
+        else {
+            $initializer = sub {
+                $self->ensure_class_loaded($class);
+                $class->new(@{$args->{args}});
+            };
+        }
+
+        $is_preload = 1 if $args->{preload};
     }
     else {
-        $initializer = sub {
-            $self->ensure_class_loaded($class);
-            $class->new(@rest);
-        };
+        croak "Usage: $self->register($class || { class => $class ... })";
     }
 
     $self->registered_classes->{$class} = $initializer;
+    $self->get($class) if $is_preload;
+    
+    return $initializer;
 }
 
 sub unregister {
@@ -326,6 +350,8 @@ Do not use it. use instance method.
 
 =head2 register( $class_or_name, $initialize_code )
 
+=head2 register( { class => $class_or_name ... } )
+
 Register classes to container.
 
 Most simple usage is:
@@ -352,6 +378,36 @@ With last way you can pass any name to first argument instead of class name.
 
     Object::Container->register('ua1', sub { LWP::UserAgent->new });
     Object::Container->register('ua2', sub { LWP::UserAgent->new });
+
+If you want to initialize and register at the same time, the following can.
+
+    Object::Container->register({ class => 'LWP::UserAgent', preload => 1 });
+
+I<initializer> option can be specified.
+
+    Object::Container->register({ class => 'WWW::Mechanize', initializer => sub {
+        my $mech = WWW::Mechanize->new( stack_depth );
+        $mech->agent_alias('Windows IE 6');
+        return $mech;
+    }, preload => 1 });
+
+This is the same as written below.
+
+    Object::Container->register('WWW::Mechanize', sub {
+        my $mech = WWW::Mechanize->new( stack_depth );
+        $mech->agent_alias('Windows IE 6');
+        return $mech;
+    });
+    Object::Container->get('WWW::Mechanize');
+
+If you specify I<args> option is:
+
+    Object::Container->register({ class => 'LWP::UserAgent', args => \@args, preload => 1 });
+
+It is, as you know, the same below.
+
+    Object::Container->register('LWP::UserAgent', @args);
+    Object::Container->get('LWP::UserAgent');
 
 =head2 unregister($class_or_name)
 
