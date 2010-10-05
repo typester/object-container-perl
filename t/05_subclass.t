@@ -1,6 +1,7 @@
 use Test::Base;
 use FindBin;
 use lib "$FindBin::Bin/subclass";
+use Test::Requires 'Exporter::AutoClean';
 
 plan tests => 3;
 

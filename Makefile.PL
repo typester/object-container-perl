@@ -4,12 +4,11 @@ all_from 'lib/Object/Container.pm';
 
 requires 'Carp';
 requires 'Class::Accessor::Fast';
-requires 'Class::Singleton';
-requires 'Data::Util';
-requires 'Exporter::AutoClean';
 requires 'parent';
 
+recommends 'Exporter::AutoClean';
 test_requires 'Test::More' => '0.88';
+test_requires 'Test::Requires';
 use_test_base;
 author_tests 'xt';
 

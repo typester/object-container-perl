@@ -2,10 +2,8 @@ package Object::Container;
 
 use strict;
 use warnings;
-use parent qw(Class::Accessor::Fast Class::Singleton);
-
+use parent qw(Class::Accessor::Fast);
 use Carp;
-use Data::Util qw(is_invocant);
 use Exporter::AutoClean;
 
 our $VERSION = '0.09_01';
@@ -35,7 +33,6 @@ sub import {
                     $caller->instance->load_all;
                 },
             );
-
         }
         else {
             no strict 'refs';
@@ -47,16 +44,17 @@ sub import {
     }
 }
 
+my %INSTANCES;
+sub instance {
+    my $class = shift;
+    return $INSTANCES{$class} ||= $class->new;
+}
+
 sub new {
     $_[0]->SUPER::new( +{
         registered_classes => +{},
         objects => +{},
     } );
-}
-
-# override Class::Singleton initializer
-sub _new_instance {
-    $_[0]->new;
 }
 
 sub register {
@@ -75,6 +73,9 @@ sub register {
     }
 
     $self->registered_classes->{$class} = $initializer;
+
+#use Data::Dumper;
+#warn Dumper($self);
 }
 
 sub unregister {
@@ -117,14 +118,16 @@ sub load_all_except {
 sub _try_load_one_class {
     my $class = shift;
 
-    return '' if is_invocant($class);
+    return '' if ref $class; # not necessarily blessed, but good enough
+    my $klass = $class;
+    $klass  =~ s{::}{/}g;
+    $klass .= '.pm';
 
-    $class  =~ s{::}{/}g;
-    $class .= '.pm';
+    return '' if $INC{$klass} || exists $::{"$class\::"};
 
     return do {
         local $@;
-        eval { require $class };
+        eval { require $klass };
         $@;
     };
 }

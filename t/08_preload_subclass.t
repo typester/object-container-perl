@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use Test::More;
+use Test::Requires 'Exporter::AutoClean';
 
 {
     package Foo;
