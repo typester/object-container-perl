@@ -9,40 +9,64 @@ our $VERSION = '0.09_01';
 
 __PACKAGE__->mk_accessors(qw/registered_classes objects/);
 
-sub import {
-    my ($class, $name) = @_;
-    return unless $name;
+do {
+    my @EXPORTS;
 
-    my $caller = caller;
-    {
-        no strict 'refs';
-        if ($name =~ /^-base$/i) {
-            push @{"${caller}::ISA"}, $class;
-            my $r = $class->can('register');
-            require Exporter::AutoClean;
-            Exporter::AutoClean->export(
-                $caller,
-                register => sub { $r->($caller, @_) },
-                preload  => sub {
-                    $caller->instance->get($_) for @_;
-                },
-                preload_all_except => sub {
-                    $caller->instance->load_all_except(@_);
-                },
-                preload_all => sub {
-                    $caller->instance->load_all;
-                },
-            );
-        }
-        else {
+    sub import {
+        my ($class, $name) = @_;
+        return unless $name;
+
+        my $caller = caller;
+        {
             no strict 'refs';
-            *{"${caller}::${name}"} = sub {
-                my ($target) = @_;
-                return $target ? $class->get($target) : $class;
-            };
+            if ($name =~ /^-base$/i) {
+                push @{"${caller}::ISA"}, $class;
+                my $r = $class->can('register');
+    
+                my %exports = (
+                    register => sub { $r->($caller, @_) },
+                    preload  => sub {
+                        $caller->instance->get($_) for @_;
+                    },
+                    preload_all_except => sub {
+                        $caller->instance->load_all_except(@_);
+                    },
+                    preload_all => sub {
+                        $caller->instance->load_all;
+                    },
+                );
+    
+                if (eval q[use Exporter::AutoClean; 1]) {
+                    Exporter::AutoClean->export( $caller, %exports );
+                }
+                else {
+                    while (my ($name, $fn) = each %exports) {
+                        *{"${caller}::${name}"} = $fn;
+                    }
+                    @EXPORTS = keys %exports;
+                }
+            }
+            else {
+                no strict 'refs';
+                *{"${caller}::${name}"} = sub {
+                    my ($target) = @_;
+                    return $target ? $class->get($target) : $class;
+                };
+            }
         }
     }
-}
+
+    sub unimport {
+        my $caller = caller;
+
+        no strict 'refs';
+        for my $name (@EXPORTS) {
+            delete ${ $caller . '::' }{ $name };
+        }
+
+        1; # for EOF
+    }
+};
 
 my %INSTANCES;
 sub instance {
@@ -128,6 +152,7 @@ sub load_all {
 
 sub load_all_except {
     my ($self, @except) = @_;
+    $self = $self->instance unless ref $self;
 
     for my $class (keys %{ $self->registered_classes }) {
         next if grep { $class eq $_ } @except;
@@ -430,6 +455,36 @@ Return value is the deleted object if it's exists.
 This is utility method that load $class if $class is not loaded.
 
 It's useful when you want include dependency in initializer and want lazy load the modules.
+
+=head2 load_all
+
+=head2 load_all_except(@classes_or_names)
+
+This module basically does lazy object initializations, but in some situation, for Copy-On-Write or for runtime speed for example, you might want to preload objects.
+For the porpose C<load_all> and C<load_all_except> method are exists.
+
+    Object::Container->load_all;
+
+This method is load all registered object at once.
+
+Also if you have some objects that keeps lazy loading, do like following:
+
+    Object::Container->load_all_except(qw/Foo Bar/);
+
+This means all objects except 'Foo' and 'Bar' are loaded.
+
+=head1 EXPORT FUNCTIONS ON SUBCLASS INTERFACE
+
+Same functions for C<load_all> and C<load_all_except> exists at subclass interface.
+Below is list of these functions.
+
+=head2 preload(@classes_or_names)
+
+=head2 preload_all
+
+=head2 preload_all_except
+
+As predictable by name, C<preload_all> is equals to C<load_all> and C<preload_all_except> is equals to <load_all_except>.
 
 =head1 SEE ALSO
 

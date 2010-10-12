@@ -238,6 +238,55 @@ $class がロードされているか確認し、ロードされていなかっ�
 
 初期化関数に依存性を含ませるような場合でその依存モジュールを遅延ロードしたい場合などに使用すると便利です。
 
+=head2 load_all
+
+=head2 load_all_except(@classes_or_names)
+
+基本的にこのモジュールは必要になるまで（getメソッドが呼ばれるまで）オブジェクトを初期化しませんが、
+C<Copy-On-Write> や、実行時の速度を重視する場合など、あらかじめオブジェクトを初期化しておきたい場合があるかもしれません。そのような場合には
+
+    Object::Container->load_all;
+
+とすることで全てのオブジェクトを初期化済みにすることができます。
+
+また、特定のオブジェクトだけは初期化したくないという場合、
+
+    Object::Container->load_all_except(qw/Foo Bar/);
+
+などとすると初期化したくないオブジェクト以外の全てのオブジェクトを初期化することも出来ます。
+上記の場合は Foo と Bar と言うオブジェクト以外の全てのオブジェクトを初期化します。
+
+=head1 EXPORT FUNCTIONS ON SUBCLASS INTERFACE
+
+    package MyContainer;
+    use strict;
+    use warnings;
+    use Object::Container '-base';
+
+とすることで Object::Container を継承し独自のコンテナークラスを定義することが出来ます。
+
+このサブクラス中では以下の関数をしようしてオブジェクト定義をすることができます。
+
+=head2 register( $class, @args )
+
+=head2 register( $class_or_name, $initialize_code )
+
+    register Foo => sub {
+        my ($self) = @_;
+        $self->ensure_class_loaded('Foo');
+        Foo->new;
+    };
+
+オブジェクトを登録します。上述したクラス（オブジェクト）メソッドの C<register> メソッドとおなじ役割をします。
+
+=head2 preload(@classes_or_names)
+
+=head2 preload_all
+
+=head2 preload_all_except
+
+これらはクラス（オブジェクト）メソッドの C<load_all>、C<load_all_except> と同じようにつかえる関数で、その名前の通り C<preload_all> が C<load_all> と、C<preload_all_except> が C<load_all_except> とそれぞれ対応しています。
+
 =head1 SEE ALSO
 
 L<Class::Singleton>, L<Object::Registrar>.
