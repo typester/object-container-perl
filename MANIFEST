@@ -17,6 +17,7 @@ inc/Test/Base/Filter.pm
 inc/Test/Builder.pm
 inc/Test/Builder/Module.pm
 inc/Test/More.pm
+inc/Test/Requires.pm
 lib/Object/Container.pm
 lib/Object/Container/ja.pod
 LICENSE
@@ -30,9 +31,13 @@ t/02_singleton.t
 t/03_args_and_initializer.t
 t/04_export.t
 t/05_subclass.t
+t/05_subclass_no_autoclean.t
 t/06_remove.t
+t/07_hashref.t
 t/07_preload.t
 t/08_preload_subclass.t
+t/no_clean/Exporter/AutoClean.pm
+t/subclass/Bar.pm
 t/subclass/Foo.pm
 xt/pod.t
 xt/pod_coverage.t

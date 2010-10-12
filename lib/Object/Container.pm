@@ -5,7 +5,7 @@ use warnings;
 use parent qw(Class::Accessor::Fast);
 use Carp;
 
-our $VERSION = '0.09_01';
+our $VERSION = '0.09';
 
 __PACKAGE__->mk_accessors(qw/registered_classes objects/);
 
@@ -224,7 +224,7 @@ sub ensure_class_loaded {
 1;
 __END__
 
-=for stopwords DSL OO runtime singletonize unregister
+=for stopwords DSL OO runtime singletonize unregister preload
 
 =head1 NAME
 
@@ -369,7 +369,11 @@ In that case, only LWP::UserAgent and HTTP::Cookies are initialized.
 
 =head2 new
 
-Do not use it. use instance method.
+Create new object.
+
+=head2 instance
+
+Create singleton object and return it.
 
 =head2 register( $class, @args )
 
@@ -461,7 +465,7 @@ It's useful when you want include dependency in initializer and want lazy load t
 =head2 load_all_except(@classes_or_names)
 
 This module basically does lazy object initializations, but in some situation, for Copy-On-Write or for runtime speed for example, you might want to preload objects.
-For the porpose C<load_all> and C<load_all_except> method are exists.
+For the purpose C<load_all> and C<load_all_except> method are exists.
 
     Object::Container->load_all;
 

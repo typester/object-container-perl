@@ -1,5 +1,10 @@
 Revision history for Perl extension Object::Container
 
+0.09 2010-10-12T20:33:36+09:00
+     - added preload_* functions in subclass interface, and also added load_* methods.
+     - remove dependency on Class::Singleton, Data::Util, and Exporter::AutoClean. Exporter::AutoClean is in 'recommends' section (lestrrat++)
+     - added hashref interface for register method also supported preload option (xaicron++)
+
 0.09_01 2010-10-05T00:18:21+09:00
      - preload interface test #1
 
