@@ -3,9 +3,9 @@ use FindBin;
 use lib "$FindBin::Bin/subclass";
 use Test::Requires 'Exporter::AutoClean';
 
-plan tests => 3;
+plan tests => 4;
 
-use Foo 'obj';
+use_ok 'Foo', 'obj';
 
 isa_ok( my $obj = obj('foo_object'), 'FooObject' );
 is($obj->{foo}, 'bar', 'object data ok');
