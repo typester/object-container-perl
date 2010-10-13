@@ -1,5 +1,8 @@
 Revision history for Perl extension Object::Container
 
+0.10 2010-10-13T15:15:52+09:00
+     - fixed a test for environment where is not installed Exporter::AutoClean
+
 0.09 2010-10-12T20:33:36+09:00
      - added preload_* functions in subclass interface, and also added load_* methods.
      - remove dependency on Class::Singleton, Data::Util, and Exporter::AutoClean. Exporter::AutoClean is in 'recommends' section (lestrrat++)
