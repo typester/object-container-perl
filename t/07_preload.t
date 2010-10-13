@@ -31,6 +31,8 @@ subtest load_all => sub {
 
     ok $c->objects->{'Foo'}, 'Foo is loaded';
     ok $c->objects->{'Bar'}, 'Bar is loaded';
+
+    done_testing;
 };
 
 subtest load_all_except => sub {
@@ -47,6 +49,8 @@ subtest load_all_except => sub {
 
     ok $c->objects->{'Foo'}, 'Foo is loaded';
     ok !$c->objects->{'Bar'}, 'Bar is not loaded too';
+
+    done_testing;
 };
 
 done_testing;
