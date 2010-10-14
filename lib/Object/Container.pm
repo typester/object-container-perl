@@ -36,7 +36,7 @@ do {
                     },
                 );
     
-                if (eval q[use Exporter::AutoClean; 1]) {
+                if (eval q[use Exporter::AutoClean]) {
                     Exporter::AutoClean->export( $caller, %exports );
                 }
                 else {
