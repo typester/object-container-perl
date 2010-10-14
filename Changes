@@ -1,5 +1,8 @@
 Revision history for Perl extension Object::Container
 
+0.11 2010-10-14T10:50:55+09:00
+     - do some workarounds for perl 5.8.x
+
 0.10 2010-10-13T15:15:52+09:00
      - fixed a test for environment where is not installed Exporter::AutoClean
 
