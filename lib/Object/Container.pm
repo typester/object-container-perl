@@ -3,6 +3,7 @@ package Object::Container;
 use strict;
 use warnings;
 use parent qw(Class::Accessor::Fast);
+use B::Hooks::EndOfScope;
 use Carp;
 
 our $VERSION = '0.11';
@@ -36,13 +37,18 @@ do {
                     },
                 );
     
-                if (eval q[use Exporter::AutoClean]) {
+                if (eval q[require Exporter::AutoClean]) {
                     Exporter::AutoClean->export( $caller, %exports );
                 }
                 else {
                     while (my ($name, $fn) = each %exports) {
                         *{"${caller}::${name}"} = $fn;
                     }
+                    on_scope_end {
+                        for my $name (keys %exports) {
+                            delete ${ $caller . '::' }{ $name };
+                        }
+                    };
                     @EXPORTS = keys %exports;
                 }
             }

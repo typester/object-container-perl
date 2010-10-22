@@ -1,2 +1,1 @@
-die "Can't locale Exporter/AutoClean.pm";
-
+no Exporter::AutoClean;

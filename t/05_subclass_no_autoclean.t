@@ -14,7 +14,7 @@ isa_ok( $obj = obj('Object::Container'), 'Object::Container' );
 
 # obj->register == Foo::register because this is in no clean state
 is obj->can('register'), Foo->can('register'), 'obj->register == Foo::register ok';
-isnt obj->can('register'), Object::Container->can('register'), 'obj->register != Object::Container::register ok';;
+is obj->can('register'), Object::Container->can('register'), 'obj->register == Object::Container::register ok';;
 
 
 use Bar 'obj_clean';

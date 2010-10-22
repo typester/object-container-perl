@@ -5,6 +5,7 @@ all_from 'lib/Object/Container.pm';
 requires 'Carp';
 requires 'Class::Accessor::Fast';
 requires 'parent';
+requires 'B::Hooks::EndOfScope';
 
 recommends 'Exporter::AutoClean';
 test_requires 'Test::More' => '0.88';
