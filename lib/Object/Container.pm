@@ -5,9 +5,17 @@ use warnings;
 use parent qw(Class::Accessor::Fast);
 use Carp;
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 
 __PACKAGE__->mk_accessors(qw/registered_classes objects/);
+
+BEGIN {
+    our $_HAVE_EAC = 1;
+    eval { local $SIG{__DIE__}; require Exporter::AutoClean; };
+    if ($@) {
+        $_HAVE_EAC = 0;
+    }    
+}
 
 do {
     my @EXPORTS;
@@ -36,7 +44,7 @@ do {
                     },
                 );
     
-                if (eval q[use Exporter::AutoClean]) {
+                if ($Object::Container::_HAVE_EAC) {
                     Exporter::AutoClean->export( $caller, %exports );
                 }
                 else {
