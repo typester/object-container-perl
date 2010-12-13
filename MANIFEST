@@ -36,6 +36,7 @@ t/06_remove.t
 t/07_hashref.t
 t/07_preload.t
 t/08_preload_subclass.t
+t/09_autoload.t
 t/no_clean/Exporter/AutoClean.pm
 t/subclass/Bar.pm
 t/subclass/Foo.pm

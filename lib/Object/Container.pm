@@ -5,9 +5,9 @@ use warnings;
 use parent qw(Class::Accessor::Fast);
 use Carp;
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
-__PACKAGE__->mk_accessors(qw/registered_classes objects/);
+__PACKAGE__->mk_accessors(qw/registered_classes autoloader_rules objects/);
 
 BEGIN {
     our $_HAVE_EAC = 1;
@@ -30,10 +30,12 @@ do {
             if ($name =~ /^-base$/i) {
                 push @{"${caller}::ISA"}, $class;
                 my $r = $class->can('register');
+                my $l = $class->can('autoloader');
     
                 my %exports = (
-                    register => sub { $r->($caller, @_) },
-                    preload  => sub {
+                    register   => sub { $r->($caller, @_) },
+                    autoloader => sub { $l->($caller, @_) },
+                    preload    => sub {
                         $caller->instance->get($_) for @_;
                     },
                     preload_all_except => sub {
@@ -85,6 +87,7 @@ sub instance {
 sub new {
     $_[0]->SUPER::new( +{
         registered_classes => +{},
+        autoloader_rules => +[],
         objects => +{},
     } );
 }
@@ -138,13 +141,35 @@ sub unregister {
     delete $self->registered_classes->{$class} and $self->remove($class);
 }
 
+sub autoloader {
+    my ($self, $rule, $trigger) = @_;
+    $self = $self->instance unless ref $self;
+
+    push @{ $self->autoloader_rules }, [$rule, $trigger];
+}
+
 sub get {
     my ($self, $class) = @_;
     $self = $self->instance unless ref $self;
+
     my $obj = $self->objects->{ $class } ||= do {
         my $initializer = $self->registered_classes->{ $class };
         $initializer ? $initializer->($self) : ();
-    } or croak qq["$class" is not registered in @{[ ref $self ]}];
+    };
+
+    unless ($obj) {
+        # autoloaderer
+        if (my ($trigger) = grep { $class =~ /$_->[0]/ } @{ $self->autoloader_rules }) {
+            $trigger->[1]->($self, $class);
+        }
+
+        $obj = $self->objects->{ $class } ||= do {
+            my $initializer = $self->registered_classes->{ $class };
+            $initializer ? $initializer->($self) : ();
+        };        
+    }
+        
+    $obj or croak qq["$class" is not registered in @{[ ref $self ]}];
 }
 
 sub remove {

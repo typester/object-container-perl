@@ -1,5 +1,9 @@
 Revision history for Perl extension Object::Container
 
+0.13 2010-12-13T11:31:33+09:00
+     - added autoload future.
+     - autoload implementation is currently experimental phase so not documented yet.
+
 0.12 2010-10-31T16:19:09+09:00
      - moved require test for Exporter::AutoClean to compile time
 
