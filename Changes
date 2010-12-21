@@ -1,7 +1,7 @@
 Revision history for Perl extension Object::Container
 
-0.14 ####
-     - added has_instance method for old version compatible
+0.14 2010-12-21T19:42:25+09:00
+     - added has_instance method for old version compatible (xaicron++)
 
 0.13 2010-12-13T11:31:33+09:00
      - added autoload future.

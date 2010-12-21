@@ -17,7 +17,6 @@ inc/Test/Base/Filter.pm
 inc/Test/Builder.pm
 inc/Test/Builder/Module.pm
 inc/Test/More.pm
-inc/Test/Requires.pm
 lib/Object/Container.pm
 lib/Object/Container/ja.pod
 LICENSE
@@ -37,6 +36,7 @@ t/07_hashref.t
 t/07_preload.t
 t/08_preload_subclass.t
 t/09_autoload.t
+t/10_class_singleton_compatible.t
 t/no_clean/Exporter/AutoClean.pm
 t/subclass/Bar.pm
 t/subclass/Foo.pm
