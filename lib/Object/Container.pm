@@ -84,6 +84,12 @@ sub instance {
     return $INSTANCES{$class} ||= $class->new;
 }
 
+sub has_instance {
+    my $class = shift;
+    $class = ref $class || $class;
+    return $INSTANCES{$class};
+};
+
 sub new {
     $_[0]->SUPER::new( +{
         registered_classes => +{},
