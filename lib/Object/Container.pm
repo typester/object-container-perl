@@ -175,7 +175,8 @@ sub get {
         };        
     }
         
-    $obj or croak qq["$class" is not registered in @{[ ref $self ]}];
+    defined $obj ?
+        $obj : croak qq["$class" is not registered in @{[ ref $self ]}];
 }
 
 sub remove {

@@ -7,23 +7,16 @@ use Object::Container 'obj';
 obj->register('ZERO', sub { 0 });
 obj->register('EMPTY_STRING', sub { '' });
 
-my $obj;
-
-eval {
-    $obj = obj->get('ZERO');
-};
+my $obj = obj->get('ZERO');
 ok defined $obj, 'return ZERO';
 
-$obj = undef;
-eval {
-    $obj = obj->get('EMPTY_STRING');
-};
+my $obj = undef;
+$obj = obj->get('EMPTY_STRING');
 ok defined $obj, 'return EMPTY_STRING';
 
 
 obj->register('UNDEF', sub { undef });
 obj->register('EMPTY_LIST', sub { () });
-
 
 $obj = undef;
 eval {
