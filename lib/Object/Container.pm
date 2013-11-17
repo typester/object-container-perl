@@ -8,18 +8,9 @@ use Carp;
 our $VERSION = '0.14';
 
 __PACKAGE__->mk_accessors(qw/registered_classes autoloader_rules objects/);
-
-BEGIN {
-    our $_HAVE_EAC = 1;
-    eval { local $SIG{__DIE__}; require Exporter::AutoClean; };
-    if ($@) {
-        $_HAVE_EAC = 0;
-    }    
-}
+use Exporter::AutoClean;
 
 do {
-    my @EXPORTS;
-
     sub import {
         my ($class, $name) = @_;
         return unless $name;
@@ -45,16 +36,7 @@ do {
                         $caller->instance->load_all;
                     },
                 );
-    
-                if ($Object::Container::_HAVE_EAC) {
-                    Exporter::AutoClean->export( $caller, %exports );
-                }
-                else {
-                    while (my ($name, $fn) = each %exports) {
-                        *{"${caller}::${name}"} = $fn;
-                    }
-                    @EXPORTS = keys %exports;
-                }
+                Exporter::AutoClean->export( $caller, %exports );
             }
             else {
                 no strict 'refs';
@@ -64,17 +46,6 @@ do {
                 };
             }
         }
-    }
-
-    sub unimport {
-        my $caller = caller;
-
-        no strict 'refs';
-        for my $name (@EXPORTS) {
-            delete ${ $caller . '::' }{ $name };
-        }
-
-        1; # for EOF
     }
 };
 
