@@ -10,44 +10,42 @@ our $VERSION = '0.14';
 __PACKAGE__->mk_accessors(qw/registered_classes autoloader_rules objects/);
 use Exporter::AutoClean;
 
-do {
-    sub import {
-        my ($class, $name) = @_;
-        return unless $name;
+sub import {
+    my ($class, $name) = @_;
+    return unless $name;
 
-        my $caller = caller;
-        {
+    my $caller = caller;
+    {
+        no strict 'refs';
+        if ($name =~ /^-base$/i) {
+            push @{"${caller}::ISA"}, $class;
+            my $r = $class->can('register');
+            my $l = $class->can('autoloader');
+
+            my %exports = (
+                register   => sub { $r->($caller, @_) },
+                autoloader => sub { $l->($caller, @_) },
+                preload    => sub {
+                    $caller->instance->get($_) for @_;
+                },
+                preload_all_except => sub {
+                    $caller->instance->load_all_except(@_);
+                },
+                preload_all => sub {
+                    $caller->instance->load_all;
+                },
+            );
+            Exporter::AutoClean->export( $caller, %exports );
+        }
+        else {
             no strict 'refs';
-            if ($name =~ /^-base$/i) {
-                push @{"${caller}::ISA"}, $class;
-                my $r = $class->can('register');
-                my $l = $class->can('autoloader');
-    
-                my %exports = (
-                    register   => sub { $r->($caller, @_) },
-                    autoloader => sub { $l->($caller, @_) },
-                    preload    => sub {
-                        $caller->instance->get($_) for @_;
-                    },
-                    preload_all_except => sub {
-                        $caller->instance->load_all_except(@_);
-                    },
-                    preload_all => sub {
-                        $caller->instance->load_all;
-                    },
-                );
-                Exporter::AutoClean->export( $caller, %exports );
-            }
-            else {
-                no strict 'refs';
-                *{"${caller}::${name}"} = sub {
-                    my ($target) = @_;
-                    return $target ? $class->get($target) : $class;
-                };
-            }
+            *{"${caller}::${name}"} = sub {
+                my ($target) = @_;
+                return $target ? $class->get($target) : $class;
+            };
         }
     }
-};
+}
 
 my %INSTANCES;
 sub instance {
