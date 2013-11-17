@@ -3,8 +3,7 @@ name 'Object-Container';
 all_from 'lib/Object/Container.pm';
 
 requires 'Carp';
-requires 'Class::Accessor::Fast';
-requires 'parent';
+requires 'Class::Accessor::Lite';
 
 recommends 'Exporter::AutoClean';
 test_requires 'Test::More' => '0.88';
