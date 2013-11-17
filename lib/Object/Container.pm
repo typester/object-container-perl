@@ -2,12 +2,9 @@ package Object::Container;
 
 use strict;
 use warnings;
-use parent qw(Class::Accessor::Fast);
 use Carp;
 
 our $VERSION = '0.14';
-
-__PACKAGE__->mk_accessors(qw/registered_classes autoloader_rules objects/);
 
 BEGIN {
     our $_HAVE_EAC = 1;
@@ -16,6 +13,9 @@ BEGIN {
         $_HAVE_EAC = 0;
     }    
 }
+use Class::Accessor::Lite (
+    rw  => [qw/registered_classes autoloader_rules objects/],
+);
 
 do {
     my @EXPORTS;
@@ -31,7 +31,7 @@ do {
                 push @{"${caller}::ISA"}, $class;
                 my $r = $class->can('register');
                 my $l = $class->can('autoloader');
-    
+
                 my %exports = (
                     register   => sub { $r->($caller, @_) },
                     autoloader => sub { $l->($caller, @_) },
@@ -91,11 +91,11 @@ sub has_instance {
 };
 
 sub new {
-    $_[0]->SUPER::new( +{
+    bless +{
         registered_classes => +{},
-        autoloader_rules => +[],
-        objects => +{},
-    } );
+        autoloader_rules   => +[],
+        objects            => +{},
+    }, shift;
 }
 
 sub register {
@@ -136,7 +136,7 @@ sub register {
 
     $self->registered_classes->{$class} = $initializer;
     $self->get($class) if $is_preload;
-    
+
     return $initializer;
 }
 
@@ -172,9 +172,9 @@ sub get {
         $obj = $self->objects->{ $class } ||= do {
             my $initializer = $self->registered_classes->{ $class };
             $initializer ? $initializer->($self) : ();
-        };        
+        };
     }
-        
+
     $obj or croak qq["$class" is not registered in @{[ ref $self ]}];
 }
 
@@ -235,7 +235,6 @@ sub _is_class_loaded {
     # fail
     return 0;
 }
-
 
 sub _try_load_one_class {
     my $class = shift;
