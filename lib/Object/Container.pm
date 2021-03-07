@@ -300,7 +300,7 @@ Object::Container - simple object container
     use Object::Container 'container';
     container->register('WWW::Mechanize');
     my $mech = container->get('WWW::Mechanize');
-    my $mech = container('WWW::Mechanize'); # save as above
+    my $mech = container('WWW::Mechanize'); # same as above
     
     # Subclassing singleton interface
     package MyContainer;
