@@ -117,14 +117,13 @@ sub register {
     }
     elsif (ref $args eq 'HASH') {
         $class = $args->{class};
-        $args->{args} ||= [];
-        if (ref $args->{initializer} eq 'CODE') {
+        if (exists $args->{initializer} && ref $args->{initializer} eq 'CODE') {
             $initializer = $args->{initializer};
         }
         else {
             $initializer = sub {
                 $self->ensure_class_loaded($class);
-                $class->new(@{$args->{args}});
+                $class->new(@{exists $args->{args} ? $args->{args} : []});
             };
         }
 
