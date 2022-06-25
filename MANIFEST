@@ -26,3 +26,5 @@ t/subclass/Foo.pm
 xt/pod.t
 xt/pod_coverage.t
 xt/pod_spell.t
+META.yml
+META.json
