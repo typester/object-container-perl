@@ -1,0 +1,25 @@
+name: mac_latest
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - '!bump-version'
+      - '!bump_version'
+      - '!doc?'
+      - '!pod'
+
+jobs:
+  perl:
+    runs-on: macOS-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: perl -V
+        run: perl -V
+      - name: Install dependencies
+        run: curl -sL https://git.io/cpm | perl - install -g --with-recommends --with-test --with-configure --show-build-log-on-failure
+      - name: Run test
+        run: prove -l t
