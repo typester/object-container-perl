@@ -1,7 +1,6 @@
 Build.PL
 Changes
 cpanfile
-inc/Module/Install.pm
 lib/Object/Container.pm
 lib/Object/Container/ja.pod
 LICENSE
