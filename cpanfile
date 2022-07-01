@@ -1,7 +1,7 @@
 # http://bit.ly/cpanfile
 # http://bit.ly/cpanfile_version_formats
 # cpm install -L extlib --with-recommends --with-test --with-configure --with-develop
-requires 'perl', '5.008005';
+requires 'perl', '5.006001';
 requires 'strict';
 requires 'warnings';
 requires 'parent';
