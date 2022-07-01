@@ -1,5 +1,9 @@
 Revision history for Perl extension Object::Container
 
+0.16 2022-07-02T19:23:15+09:00
+     - Support Perl5.6 again.(Accidentally removed on 0.15)
+     - Add latest Perl version in CI
+
 0.15 2022-06-25T14:42:25+09:00
      - Support cpanfile
      - Add github workflows
